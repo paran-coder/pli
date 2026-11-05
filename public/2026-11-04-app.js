@@ -21,7 +21,7 @@ const duration=n=>{n=Math.max(0,Math.floor(n||0));return `${Math.floor(n/60)}:${
 
 function notify(message,error=false){const el=$('#notice');clearTimeout(noticeTimer);el.textContent=message;el.classList.toggle('error',error);el.hidden=false;noticeTimer=setTimeout(()=>el.hidden=true,error?14000:6500);}
 function markDirty(){dirty=true;editVersion++;$('#save-state').textContent='저장하지 않은 변경 사항';}
-function setConnected(value){connected=value;if(!value){engineState={};imageConfigured=false;renderMusicEngine();renderProduction();}$('#bridge-dot').classList.toggle('online',value);$('#bridge-label').textContent=value?'로컬 브릿지 연결됨':'브릿지 연결 필요';const button=$('#connect-bridge');button.textContent=value?'연결됨':'브릿지 연결';button.disabled=value;}
+function setConnected(value){connected=value;if(!value){engineState={};imageConfigured=false;renderMusicEngine();renderProduction();}$('#bridge-dot').classList.toggle('online',value);$('#bridge-label').textContent=value?'로컬 브릿지 연결됨':'브릿지 연결 필요';const button=$('#connect-bridge');button.textContent=value?'연결됨':'AI 연결';button.disabled=value;}
 function tab(name){
   name=name==='overview'?'analysis':name;if(!phases[name])return;currentTab=name;
   $$('.view').forEach(el=>el.hidden=el.id!=='view-'+name);
@@ -61,21 +61,23 @@ async function attachMedia(){
   }
 }
 
-async function connectFromWeb(manual=false){
+let pairing=false;
+async function connectFromWeb(manual=false,launch=true){
+  if(pairing)return;
   if(manual||location.origin===base){await connect({restore:true});return;}
-  const button=$('#connect-bridge');
-  button.disabled=true;button.textContent='PC 승인 대기 중…';
+  pairing=true;
+  renderSetup();
   const nonce=Array.from(crypto.getRandomValues(new Uint8Array(32)),n=>n.toString(16).padStart(2,'0')).join('');
   try{
-    location.href='playl-bridge:connect';
+    if(launch)location.href='pli-bridge:connect';
     let response;
-    for(let attempt=0;attempt<8;attempt++){
+    for(let attempt=0;attempt<15;attempt++){
       try{
         response=await fetch(base+'/api/web-pair',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nonce}),signal:AbortSignal.timeout(70000)});
         break;
       }catch(error){
         if(error.name==='TimeoutError')throw new Error('PC의 승인 창을 확인한 뒤 다시 연결하세요.');
-        if(attempt===7)throw new Error('브릿지 연결 앱을 설치하고 다시 연결하세요. 브라우저의 로컬 네트워크 접근도 허용되어 있어야 합니다.');
+        if(attempt===14){tab('setup');throw new Error('연결 앱에 응답이 없습니다. 처음이라면 아래에서 설치하세요. 설치했다면 브라우저의 로컬 네트워크 접근과 앱 열기를 허용한 뒤 다시 시도하세요.');}
         await new Promise(resolve=>setTimeout(resolve,700));
       }
     }
@@ -83,7 +85,7 @@ async function connectFromWeb(manual=false){
     if(!response.ok||result.nonce!==nonce||!result.token)throw new Error(result.error||'브릿지 승인을 확인할 수 없습니다.');
     token=result.token;$('#bridge-token').value=token;
     await connect({restore:true});
-  }finally{button.disabled=connected;button.textContent=connected?'연결됨':'브릿지 연결';}
+  }finally{pairing=false;renderSetup();}
 }
 async function connect({restore=false}={}){
   const initialEditVersion=editVersion,initialLoadGeneration=projectLoadGeneration;
@@ -484,7 +486,10 @@ window.addEventListener('beforeunload',event=>{if(dirty){event.preventDefault();
 $('#bridge-url').value=base;$('#bridge-token').value=token;
 project=createDraft();
 renderProject();renderJobs();tab('analysis');
-connect({restore:true}).catch(e=>{setConnected(false);renderSummary();$('#cli-status').innerHTML='<div class="panel muted">브릿지를 연결하면 설치·로그인 상태를 확인할 수 있습니다.</div>';renderSetup();if(currentTab==='analysis'&&!dirty)tab('setup');notify('시작·설치 확인에서 필요한 도구를 준비하세요.',true);});
+const arrival=new URL(location.href);
+const installed=arrival.searchParams.get('pli-connect')==='1';
+if(installed){arrival.searchParams.delete('pli-connect');history.replaceState(null,'',arrival);tab('setup');}
+(installed?connectFromWeb(false,false):connect({restore:true})).catch(e=>{setConnected(false);renderSummary();$('#cli-status').innerHTML='<div class="panel muted">브릿지를 연결하면 설치·로그인 상태를 확인할 수 있습니다.</div>';renderSetup();if(currentTab==='analysis'&&!dirty)tab('setup');notify(installed?e.message:'AI 연결을 눌러 이 PC와 연결하세요.',true);});
 setInterval(()=>{if(!document.hidden)poll();},2500);
 
 function renderSummary(){
@@ -630,7 +635,16 @@ function renderTasks(){
     if(kind==='plan'){$('#generate-plan').disabled=submitting||taskActive(j);$('#generate-plan').textContent=submitting||taskActive(j)?'기획·가사 생성 중…':'기획·가사 생성';}
   }
 }
-function renderSetup(){const button=$('#setup-connect');button.textContent=connected?'연결됨':'브릿지 연결';button.disabled=connected;$('#setup-bridge-state').textContent=connected?'이 PC의 설치 상태와 사양을 확인합니다.':'브릿지를 설치한 뒤 연결하세요.';$('#download-bridge').hidden=connected;$('#download-node').hidden=!!setupInfo?.tools?.node;setHTML('#setup-results',setupPanel(setupInfo,statusSnapshot,engineState.yue2));}
+function renderSetup(){
+  for(const id of ['#setup-connect','#connect-bridge']){
+    const button=$(id);
+    button.textContent=connected?'연결됨':pairing?'PC 승인 대기 중…':'AI 연결';
+    button.disabled=connected||pairing;
+  }
+  $('#setup-bridge-state').textContent=connected?'이 PC의 설치 상태와 AI 로그인 상태를 확인합니다.':'설치된 연결 앱이 있으면 AI 연결로 실행합니다.';
+  $('#download-bridge').hidden=connected;
+  setHTML('#setup-results',setupPanel(setupInfo,statusSnapshot,engineState.yue2));
+}
 async function refreshSetup(){
   if(!connected){setupInfo=null;renderSetup();return;}
   setHTML('#setup-results','<p role="status">설치 상태와 PC 사양을 확인하고 있습니다…</p>');

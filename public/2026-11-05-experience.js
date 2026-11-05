@@ -22,7 +22,7 @@ export function taskPanel(job,project,kind,{submitting=false}={}){
 }
 export const setupLinks={node:'https://nodejs.org/en/download',ffmpeg:'https://ffmpeg.org/download.html',codex:'https://developers.openai.com/codex/cli',claude:'https://code.claude.com/docs/en/setup',yue2:'https://github.com/timoncool/YuE2-Studio/releases',capcut:'https://www.capcut.com/tools/desktop-video-editor'};
 export function setupPanel(info,status,yueConnection){
- const keys=[['node','Node.js','필수 · 브릿지 실행'],['ffmpeg','FFmpeg','음원 처리·CapCut 미디어 준비'],['ffprobe','FFprobe','음원 길이 확인'],['codex','GPT · Codex CLI','기획 AI'],['claude','Claude CLI','선택 · 두 번째 기획 AI'],['yue2','YuE2 Studio','선택 · 로컬 음악 생성'],['capcut','CapCut','최종 편집']];
+ const keys=[['ffmpeg','FFmpeg','음원 처리·CapCut 미디어 준비'],['ffprobe','FFprobe','음원 길이 확인'],['codex','GPT · Codex CLI','기획 AI'],['claude','Claude CLI','선택 · 두 번째 기획 AI'],['yue2','YuE2 Studio','선택 · 로컬 음악 생성'],['capcut','CapCut','최종 편집']];
  if(!info)return '<p class="inline-note">로컬 브릿지가 연결되면 설치 여부와 PC 사양을 확인할 수 있습니다. 브라우저만으로 설치 상태를 확인하지 않습니다.</p>';
  return `<p class="muted">확인된 PC: OS 인식 RAM 약 ${esc(info.ramGB)} GB · ${esc(info.gpus?.map(g=>g.name+' / '+g.vramGB+' GB VRAM').join(', ')||'GPU 확인 불가')}</p><div class="setup-grid">${keys.map(([key,title,reason])=>{const installed=info.tools[key];const yue=info.yue2;
   const yueAction=key!=='yue2'?'':yue?.projectCopy?
