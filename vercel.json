@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "framework": null,
+  "buildCommand": "",
+  "installCommand": "",
+  "outputDirectory": "public",
+  "headers": [{"source":"/(.*)","headers":[
+    {"key":"X-Content-Type-Options","value":"nosniff"},
+    {"key":"Referrer-Policy","value":"no-referrer"},
+    {"key":"Content-Security-Policy","value":"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data: http://127.0.0.1:43119 https://i.ytimg.com https://yt3.ggpht.com https://yt3.googleusercontent.com; media-src 'self' blob: http://127.0.0.1:43119; connect-src 'self' http://127.0.0.1:43119; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"}
+  ]}]
+}

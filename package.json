@@ -1,0 +1,12 @@
+{
+  "name": "playl",
+  "version": "0.8.2",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node bridge/2026-11-04-server.mjs",
+    "test": "node --test ../2026-11-04-PlayL-tests-v0.1.0/*.test.mjs",
+    "check": "node --check bridge/2026-11-04-server.mjs && node --check public/2026-11-04-app.js"
+  }
+}
