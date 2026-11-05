@@ -19,3 +19,14 @@
 
 .job-row{display:flex;align-items:start;gap:12px;padding:10px 12px;border-bottom:1px solid var(--color-border)}
 .job-row details{flex:1;min-width:0}.job-row summary{cursor:pointer;padding:9px 0}.job-row summary>*{margin-right:12px}.job-row time{font-size:var(--font-meta);color:var(--color-muted)}.job-detail pre{white-space:pre-wrap;overflow-wrap:anywhere}.job-detail{padding:8px 0}.music-source audio{display:block;width:100%;margin:8px 0}
+
+/* Separate connection actions from their adjacent fields and panels. */
+#view-connections #connect-bridge + details,
+#view-connections .form-grid + #save-models,
+#view-connections #allowed-origin + .button-row {
+  margin-block-start: var(--space-4);
+}
+
+#view-connections #cli-status > :only-child {
+  grid-column: 1 / -1;
+}
