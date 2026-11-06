@@ -348,6 +348,11 @@ async function requestMusic(tracks){
   await submitJob(inputs[0],inputs);
 }
 async function handleAction(event){
+  if(event.target.closest('#home-link') && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey){
+    event.preventDefault();
+    tab('analysis');
+    return;
+  }
   const b=event.target.closest('button');if(!b)return;
   if(b.dataset.tab){tab(b.dataset.tab);return;}
   const id=b.id;
