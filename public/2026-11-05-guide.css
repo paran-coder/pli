@@ -5,3 +5,10 @@
 .guide-toc strong { padding: 10px 12px; }.guide-toc a { padding: 10px 12px; text-decoration: none; border-radius: var(--radius-control); color: var(--color-secondary); }.guide-toc a:hover { background: var(--color-surface); color: var(--color-text); }
 .guide-layout main { padding: 0; min-width: 0; }.guide-title { padding: 0 0 20px; }.guide-page section { scroll-margin-top: 20px; margin-bottom: 20px; }.guide-page h2 { margin-bottom: 18px; }.guide-page h3 { margin-top: 22px; }.guide-page li { margin: 12px 0; padding-left: 3px; }.guide-page ol { padding-left: 24px; }.guide-page a:not(.brand):not(.secondary) { text-underline-offset: 4px; }.guide-page code { overflow-wrap: anywhere; color: var(--color-text); }.guide-page p { overflow-wrap: anywhere; }.guide-page details { margin-top: 12px; }.guide-page summary { cursor: pointer; padding: 8px 0; }.guide-page footer { margin-top: 28px; }.side-bottom a.nav { text-decoration: none; }
 @media(max-width:760px) { .guide-header { padding: 16px; flex-wrap: wrap; gap: 12px; }.guide-header .brand { font-size: 22px; }.guide-header .muted { font-size: 12px; }.guide-header .secondary { margin-left: 0; }.guide-layout { display: block; padding: 16px; }.guide-toc { position: static; max-height: none; display: flex; overflow-x: auto; gap: 4px; margin-bottom: 24px; padding-bottom: 8px; }.guide-toc strong { display: none; }.guide-toc a { white-space: nowrap; flex-shrink: 0; }.guide-page .panel { padding: 18px; } }
+
+.guide-toc a[aria-current="location"] {
+  background: var(--color-raised);
+  box-shadow: inset 3px 0 var(--color-action);
+  color: var(--color-action);
+  font-weight: 700;
+}
